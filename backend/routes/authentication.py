@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Users
+from models import db, Users, Trekker
 from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
 from datetime import datetime, timedelta
@@ -50,19 +50,22 @@ def register():
             u_role="trekker",
             u_status="active"
         )
-
-        # new_trekker = Trekker(
-        #     name=data['name'],
-        #     email=data['email'],
-        #     phone=data.get('phone'),
-        #     address=data.get('address'),
-        #     registration_status="INACTIVE"
-        # )
-
-
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"message":"User registered successfully, please wait for admin approval"}), 201
+
+        new_trekker = Trekker(
+            u_id = new_user.u_id,
+            u_name=data.get('name'),
+            u_email=data.get('email'),
+            u_phone=data.get('phone'),
+            u_city=data.get('city'),
+            u_age=data.get('age'),
+            u_status="active"
+        )
+
+        db.session.add(new_trekker)
+        db.session.commit()
+        return jsonify({"message":"User registered successfully, Kindly proceed to login"}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"Database processing failure: {str(e)}"}), 500
