@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Users, Treks
+from models import db, Users, Treks, Staff
 import jwt
 
 admin_bp = Blueprint('admin', __name__)
@@ -43,7 +43,7 @@ def admin_dashboard():
     except Exception as e:
         return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-# 2. Get All User/Staff Accounts
+# 2. Get All User Accounts
 @admin_bp.route('/api/admin/accounts', methods=['GET'])
 @admin_required
 def get_accounts():
@@ -175,8 +175,20 @@ def register_staff_member():
             u_role="staff",
             u_status="active"
         )
-        
         db.session.add(new_staff_user)
+        db.session.commit()
+
+        new_staff = Staff(
+            s_id=new_staff_user.u_id,
+            s_name=data.get('name'),
+            s_phone=data.get('phone'),
+            s_email=email,
+            s_age=data.get('age'),
+            s_city=data.get('city'),
+            s_status="active"
+        )
+        
+        db.session.add(new_staff)
         db.session.commit()
         return jsonify({"message": f"Staff account {email} registered successfully!"}), 201
 
