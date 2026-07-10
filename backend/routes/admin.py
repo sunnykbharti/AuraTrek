@@ -82,7 +82,6 @@ def toggle_account_status(user_id):
 
 # 4. Get & Create Trek Routes (CRUD - Get & Post)
 @admin_bp.route('/api/admin/treks', methods=['GET', 'POST'])
-@admin_required
 def handle_treks():
     if request.method == 'GET':
         try:
