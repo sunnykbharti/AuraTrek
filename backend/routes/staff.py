@@ -14,6 +14,7 @@ def staff_required(f):
         try:
             if "Bearer" in token:
                 token = token.split(" ")[1]
+            global data
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
 
             if data.get('role') != 'staff':
@@ -25,17 +26,12 @@ def staff_required(f):
     decorated.__name__ = f.__name__
     return decorated
 
-@staff_bp.route('/staff/treks', methods=['GET'])
+@staff_bp.route('/api/staff/treks', methods=['GET'])
 @staff_required
 def staff_treks():
-    token = request.headers.get('Authorization')
     try:
-        if "Bearer" in token:
-            token = token.split(" ")[1]
-        data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
-        
         #pulling all thge assigned treks to the staff member
-        assigned_trek =Treks.query.filter_by(staff_id=data.get('user_id')).all()
+        assigned_trek =Treks.query.filter_by(t_staff=data.get('user_id')).all()
 
         treks_data = [{
             "t_id": t.t_id,
