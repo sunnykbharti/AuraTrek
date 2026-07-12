@@ -117,3 +117,14 @@ def get_my_bookings():
         return jsonify(history_data), 200
     except Exception as e:
         return jsonify({"message" : f"Server processing error : {str(e)}"}), 500
+    
+@user_bp.route('/api/user/export-history', methods=['POST'])
+@user_required
+def trigger_history_export():
+    from tasks import export_booking_history_csv
+
+    export_booking_history_csv.delay(request.user_id, request.user_email)
+
+    return jsonify({
+        "message" : "CSV Comilation Batch Job triggered successfully!"
+    }), 202
