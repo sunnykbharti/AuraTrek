@@ -25,6 +25,21 @@
         </div>
 
         <div class="mb-3 text-start">
+          <label class="form-label small fw-semibold" style="color: tomato;">Phone</label>
+          <input type="text" class="form-control" v-model="phone" placeholder="1234567890" required>
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label small fw-semibold" style="color: tomato;">City</label>
+          <input type="text" class="form-control" v-model="city" placeholder="Pune" required>
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label small fw-semibold" style="color: tomato;">Age</label>
+          <input type="number" class="form-control" v-model="age" placeholder="20" required>
+        </div>
+
+        <div class="mb-3 text-start">
           <label class="form-label small fw-semibold" style="color: tomato;">Password</label>
           <input type="password" class="form-control" v-model="password" placeholder="********" required>
         </div>
@@ -55,6 +70,9 @@ export default {
     const name = ref('')
     const email = ref('')
     const password = ref('')
+    const phone = ref('')
+    const city = ref('')
+    const age = ref('')
     const errorMessage = ref('')
     const successMessage = ref('')
     const isLoading = ref(false)
@@ -74,7 +92,7 @@ export default {
         const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.value, email: email.value, password: password.value, role: 'trekker' })
+          body: JSON.stringify({ name: name.value, email: email.value, password: password.value, phone: phone.value, city: city.value, age: age.value, role: 'trekker' })
         })
 
         const data = await response.json()
@@ -88,6 +106,9 @@ export default {
         name.value = ''
         email.value = ''
         password.value = ''
+        phone.value = ''
+        city.value = ''
+        age.value = ''
 
         setTimeout(() => {
           router.push('/')
@@ -99,13 +120,13 @@ export default {
       }
     }
 
-    return { name, email, password, errorMessage, successMessage, isLoading, handleRegister }
+    return { name, email, password, phone, city, age, errorMessage, successMessage, isLoading, handleRegister }
   }
 }
 </script>
 
 <style scoped>
 .register-body {
-  background-color: aqua;
+  background-color: #f7f3e9;
 }
 </style>

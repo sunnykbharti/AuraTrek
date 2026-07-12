@@ -14,9 +14,6 @@
           <div class="sidebar shadow-sm">
             <div>
                 <a href="#" class="nav-link-custom" :class="{ active: currentTab === 'dashboard' }" @click.prevent="switchTab('dashboard')">📊 Dashboard</a>
-                <!-- <a href="#" class="nav-link-custom" :class="{ active: currentTab === 'routes' }" @click.prevent="switchTab('routes')">🗺️ Trek Routes</a>
-                <a href="#" class="nav-link-custom" :class="{ active: currentTab === 'users' }" @click.prevent="switchTab('users')">👥 Manage Users</a>
-                <a href="#" class="nav-link-custom" :class="{ active: currentTab === 'staff' }" @click.prevent="switchTab('staff')">🧑‍💼 Manage Staff</a> -->
             </div>
             <div>
                 <hr class="sidebar-divider">
@@ -31,7 +28,7 @@
             <div class="container-fluid">
 
                 <!-- Tab1 : Staff Dashboard -->
-                 <div v-if="currentTab === 'dashbaord'">
+                 <div v-if="currentTab === 'dashboard'">
                     <div class="mb-4">
                         <h2 class="fw-bold mb-1 text-dark"> My Expeditions </h2>
                         <p class="text-muted small"> Trek routes assigned to yout supervision </p>
@@ -41,7 +38,7 @@
                     <div class="row g-4">
                         <div class="col-md-6 col-lg-4" v-for="trek in myTreks" :key="trek.t_id">
                             <div class="card trek-card p-4 shadow-sm border-0">
-                                <span class="badge bg-secondary-subtle text-secondary text-uppercase tracking-wider mb-2 align-slef-start py-1.5 px-2">
+                                <span class="badge bg-secondary-subtle text-secondary text-uppercase tracking-wider mb-2 align-self-start py-1.5 px-2">
                                     {{  trek.t_difficulty }}
                                 </span>
                                 <h4 class="fw-bold mb-1 text-dark">{{ trek.t_name }}</h4>
@@ -72,7 +69,7 @@
 </template>
 
 <script>
-import { ref,onMounted } from 'vue';
+import { ref,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
@@ -82,6 +79,8 @@ export default {
         const myTreks = ref([])
         const current_staff_name = ref('')
         const error = ref('')
+
+        const currentTab = ref('dashboard')
 
         const fetchAssignedTreks = async () => {
             const token = localStorage.getItem('token')
@@ -93,10 +92,10 @@ export default {
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/staff/my-treks', {
+                const response = await fetch('http://127.0.0.1:5000/api/staff/treks', {
                     method: 'GET',
                     headers: {
-                        'Authorization': 'Bearer ${token}',
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 })
@@ -109,7 +108,10 @@ export default {
             }
         }
 
-        const switchTab = (tabName) =>)
+        const switchTab = (tabName) => {
+            currentTab.value = tabName
+            if (tabName === 'dashboard') fetchAssignedTreks()
+        }
 
         const handleLogout = () => {
             localStorage.clear()
@@ -122,10 +124,13 @@ export default {
 
         return {
             myTreks,
+            currentTab,
+            switchTab,
             current_staff_name,
             error,
             handleLogout
         }
+    }
 }
 </script>
 

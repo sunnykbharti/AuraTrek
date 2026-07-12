@@ -92,11 +92,10 @@
                   <label class="form-label small fw-semibold">Available Slots</label>
                   <input type="number" class="form-control" v-model="trekForm.t_slots" required min="1">
                 </div>
-                <!-- Connected Staff Assignment Selector Inside Form Wrap -->
+                <!-- Fixed Staff Selector Fallback Matrix Here -->
                 <div class="col-md-12">
                   <label class="form-label small fw-semibold">Assign Staff Guide</label>
                   <select class="form-select" v-model="trekForm.t_staff">
-                    <option :value="null">None (Leave Unassigned)</option>
                     <option v-for="staff in availableStaffOptions" :key="staff.u_id" :value="staff.u_id">
                       {{ staff.username }}
                     </option>
@@ -203,21 +202,43 @@
             </div>
           </div>
 
-          <!-- Inline Staff Registration Form Panel -->
+          <!-- Inline Staff Registration Form Panel (Fixed Grid Classes Layout) -->
           <div v-if="showStaffForm" class="card p-4 mb-4 border-0 shadow-sm bg-white" style="border-radius:12px; border: 1px solid #ebdcb9 !important;">
             <h5 class="fw-bold text-dark mb-3">Onboard New Staff Member</h5>
             <form @submit.prevent="submitStaffRegistration">
-              <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                  <label class="form-label small fw-semibold">Staff Email Address</label>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Email Address</label>
                   <input type="email" class="form-control form-control-sm" v-model="staffForm.email" placeholder="guide@auratrek.com" required>
                 </div>
-                <div class="col-md-5">
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Full Name</label>
+                  <input type="text" class="form-control form-control-sm" v-model="staffForm.name" placeholder="John Doe" required>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Phone Number</label>
+                  <input type="text" class="form-control form-control-sm" v-model="staffForm.phone" placeholder="1234567890" required>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Age</label>
+                  <input type="number" class="form-control form-control-sm" v-model="staffForm.age" placeholder="25" required>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">City</label>
+                  <input type="text" class="form-control form-control-sm" v-model="staffForm.city" placeholder="New York" required>
+                </div>
+
+                <div class="col-md-4">
                   <label class="form-label small fw-semibold">Temporary Password</label>
                   <input type="password" class="form-control form-control-sm" v-model="staffForm.password" placeholder="********" required minlength="6">
                 </div>
-                <div class="col-md-2">
-                  <button type="submit" class="btn btn-sm btn-dark w-100 fw-bold py-2">Create Account</button>
+                
+                <div class="col-12 text-end mt-3">
+                  <button type="submit" class="btn btn-sm btn-dark fw-bold py-2 px-4">Create Account</button>
                 </div>
               </div>
             </form>
@@ -289,7 +310,7 @@ export default {
     const trekForm = ref({ t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: 1, t_slots: 10, t_staff: null })
 
     const showStaffForm = ref(false)
-    const staffForm = ref({ email: '', password: '' })
+    const staffForm = ref({ email: '', password: '' , name: '', phone: '', age: null, city: ''})
 
     const availableStaffOptions = computed(() => {
       return accountsList.value.filter(acc => acc.u_role === 'staff' && acc.u_status === 'active')
@@ -401,7 +422,7 @@ export default {
         const data = await response.json()
         if (!response.ok) throw new Error(data.message)
 
-        staffForm.value = { email: '', password: '' }
+        staffForm.value = { email: '', password: '', name: '', phone: '', age: null, city: ''}
         showStaffForm.value = false
         await fetchAccounts()
         await fetchDashboard()
@@ -416,7 +437,7 @@ export default {
         trekForm.value = { ...trek }
       } else {
         editingTrekId.value = null
-        trekForm.value = { t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: 1, t_slots: 10, t_staff: null }
+        trekForm.value = { t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: '', t_slots: '', t_staff: null }
       }
       showTrekModal.value = true
     }

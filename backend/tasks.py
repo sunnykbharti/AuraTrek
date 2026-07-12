@@ -22,13 +22,15 @@ celery_app.conf.beat_schedule = {
 @celery_app.task
 def send_daily_reminders():
     # Target window: Treks beginning exactly tomorrow
-    tomorrow = (datetime.utcnow() + timedelta(days=1)).strftime('%Y-%m-%d')
+    tomorrow_dt = datetime.utcnow() + timedelta(days=1)
+    tomorrow_str = tomorrow_dt.strftime('%Y-%m-%d')
     
-    # Query all active allocations matching tomorrow's itinerary constraints
+    # Logic Fixed: Added filter to match treks that specifically start tomorrow
     upcoming_bookings = db.session.query(TrekApplications, Users, Treks).\
         join(Users, TrekApplications.u_id == Users.u_id).\
         join(Treks, TrekApplications.s_id == Treks.t_id).\
-        filter(TrekApplications.a_status == 'APPROVED').all()
+        filter(TrekApplications.a_status == 'APPROVED').\
+        filter(Treks.t_start_date == tomorrow_str).all() # <--- Crucial Date Logic Filter Added
 
     for app, user, trek in upcoming_bookings:
         html_content = f"""
@@ -47,7 +49,7 @@ def send_daily_reminders():
         </html>
         """
         send_email(user.username, "🎒 AuraTrek: Upcoming Expedition Reminder!", html_content)
-    return f"Processed reminders loop sequence for tomorrow."
+    return f"Processed reminders loop sequence for tomorrow ({tomorrow_str})."
 
 
 # --- Job B: Scheduled Monthly Admin Report ---
@@ -61,10 +63,11 @@ def generate_monthly_admin_report():
     total_treks = Treks.query.count()
     total_participants = TrekApplications.query.filter_by(a_status='APPROVED').count()
     
-    # Fetch top popular trek trails dynamically based on reservations
-    popular_treks = db.session.query(Treks.t_name, db.func.count(TrekApplications.a_id).label('count')).\
+    # Query Fixed: Order By engine exception bypass handled natively
+    popular_treks = db.session.query(Treks.t_name, db.func.count(TrekApplications.a_id).label('booking_count')).\
         join(TrekApplications, Treks.t_id == TrekApplications.s_id).\
-        group_by(Treks.t_name).order_by(db.text('count DESC')).limit(3).all()
+        group_by(Treks.t_name).\
+        order_by(db.desc(db.func.count(TrekApplications.a_id))).limit(3).all()
 
     popular_rows = "".join([f"<li><strong>{t_name}</strong> ({count} active bookings)</li>" for t_name, count in popular_treks])
 

@@ -83,9 +83,17 @@ export default {
         setTimeout(() => {
           if (data.role === 'admin') {
             router.push('/admin-dashboard')
-          } else {
+          } 
+          else if (data.role === 'staff') {
             router.push('/staff-dashboard')
           }
+          else if (data.role === 'trekker'){
+            router.push('/user-dashboard')
+          }
+          else {
+            router.push('/')
+          }
+
         }, 1500)
 
       } catch (error) {
