@@ -64,7 +64,12 @@ def make_celery(app):
         broker = app.config['CELERY_BROKER_URL'],
         backend = app.config['CELERY_RESULT_BACKEND']
     )
-    celery.conf.update(app.config)
+    celery.conf.update(
+        broker_url=app.config['CELERY_BROKER_URL'],
+        result_backend=app.config['CELERY_RESULT_BACKEND'],
+        timezone='Asia/Kolkata',
+        broker_connection_retry_on_startup=True
+    )
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
             with app.app_context():
@@ -73,6 +78,8 @@ def make_celery(app):
     return celery
 
 celery_app = make_celery(app)
+
+import tasks
 
 # =============== default route ================
 @app.route('/')
