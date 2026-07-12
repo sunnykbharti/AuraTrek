@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from models import db, Users, Treks, Staff
 import jwt
+from app import cache
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -81,40 +82,47 @@ def toggle_account_status(user_id):
         return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 # 4. Get & Create Trek Routes (CRUD - Get & Post)
-@admin_bp.route('/api/admin/treks', methods=['GET', 'POST'])
-def handle_treks():
-    if request.method == 'GET':
-        try:
-            treks = Treks.query.all()
-            treks_data = [{
-                "t_id": t.t_id,
-                "t_name": t.t_name,
-                "t_location": t.t_location,
-                "t_difficulty": t.t_difficulty,
-                "t_duration": t.t_duration,
-                "t_slots": t.t_slots,
-                "t_staff": t.t_staff
-            } for t in treks]
-            return jsonify(treks_data), 200
-        except Exception as e:
-            return jsonify({"message": f"Server error: {str(e)}"}), 500
+# updatig cache
+@admin_bp.route('/api/admin/treks', methods=['GET'])
+@cache.cached(timeout=300, key_prefix='all_treks_data')
+def get_treks():
+    try:
+        treks = Treks.query.all()
+        treks_data = [{
+            "t_id": t.t_id,
+            "t_name": t.t_name,
+            "t_location": t.t_location,
+            "t_difficulty": t.t_difficulty,
+            "t_duration": t.t_duration,
+            "t_slots": t.t_slots,
+            "t_staff": t.t_staff
+        } for t in treks]
+        return jsonify(treks_data), 200
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-    if request.method == 'POST':
-        data = request.get_json()
-        try:
-            new_trek = Treks(
-                t_name=data.get('t_name'),
-                t_location=data.get('t_location'),
-                t_difficulty=data.get('t_difficulty', 'Easy'),
-                t_duration=int(data.get('t_duration', 1)),
-                t_slots=int(data.get('t_slots', 10))
-            )
-            db.session.add(new_trek)
-            db.session.commit()
-            return jsonify({"message": "New Trek Route Created Successfully!"}), 201
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"message": f"Failed to create route: {str(e)}"}), 500
+# post method and removing old cache
+@admin_bp.route('/api/admin/treks', methods=['POST'])
+@admin_required
+def create_trek():
+    data = request.get_json()
+    try:
+        new_trek = Treks(
+            t_name=data.get('t_name'),
+            t_location=data.get('t_location'),
+            t_difficulty=data.get('t_difficulty', 'Easy'),
+            t_duration=int(data.get('t_duration', 1)),
+            t_slots=int(data.get('t_slots', 10))
+        )
+        db.session.add(new_trek)
+        db.session.commit()
+        
+        cache.delete('all_treks_data') 
+        
+        return jsonify({"message": "New Trek Route Created Successfully!"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Failed to create route: {str(e)}"}), 500
 
 # 5. Update & Delete Specific Trek Route (CRUD - Put & Delete)
 @admin_bp.route('/api/admin/treks/<int:trek_id>', methods=['PUT', 'DELETE'])
@@ -135,6 +143,8 @@ def modify_trek(trek_id):
             trek.t_staff = data.get('t_staff') # <--- Explicitly handle staff assignment updates
             
             db.session.commit()
+
+            cache.delete('all_treks_data') 
             return jsonify({"message": "Trek route details modified successfully!"}), 200
         except Exception as e:
             db.session.rollback()
@@ -144,6 +154,8 @@ def modify_trek(trek_id):
         try:
             db.session.delete(trek)
             db.session.commit()
+
+            cache.delete('all_treks_data') 
             return jsonify({"message": "Trek route deleted completely"}), 200
         except Exception as e:
             db.session.rollback()
