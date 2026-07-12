@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from models import db, Users, Treks, TrekApplications, Trekker
 import jwt
 from datetime import datetime
-from app import cache
+from extension import cache
 
 user_bp = Blueprint('user', __name__)
 

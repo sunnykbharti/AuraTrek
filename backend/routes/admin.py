@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from models import db, Users, Treks, Staff
 import jwt
-from app import cache
+from extension import cache
 
 admin_bp = Blueprint('admin', __name__)
 
