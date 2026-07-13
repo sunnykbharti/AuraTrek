@@ -219,3 +219,5 @@ __marimo__/
 
 exports/
 celerybeat-schedule.db
+
+StaffDashboard2.vue
