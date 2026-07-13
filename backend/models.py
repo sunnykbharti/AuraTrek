@@ -43,11 +43,18 @@ class Treks(db.Model):
     t_duration = db.Column(db.Integer, nullable = False)
     t_slots = db.Column(db.Integer, nullable = False)
     t_staff = db.Column(db.Integer, db.ForeignKey('staff.s_id'), nullable = True)
+    t_status = db.Column(db.String(100), default = "open")
+    applications = db.relationship(
+        'TrekApplications', 
+        backref='trek', 
+        cascade="all, delete-orphan",
+        lazy=True
+    )
 
 #==================== Applications for trek details =============================
 class TrekApplications(db.Model):
     a_id = db.Column(db.Integer, primary_key = True)
-    s_id = db.Column(db.Integer, db.ForeignKey('staff.s_id'), nullable = True)
+    t_id = db.Column(db.Integer, db.ForeignKey('treks.t_id'), nullable = True)
     u_id = db.Column(db.Integer, db.ForeignKey('trekker.u_id'), nullable = True)
     a_date = db.Column(db.DateTime)
     a_status = db.Column(db.String(100), default = "applied")

@@ -112,7 +112,7 @@ def export_booking_history_csv(user_id, user_email):
 
     # Fetch rows compilation matrix
     records = db.session.query(TrekApplications, Treks).\
-        join(Treks, TrekApplications.s_id == Treks.t_id).\
+        join(Treks, TrekApplications.t_id == Treks.t_id).\
         filter(TrekApplications.u_id == user_id).all()
 
     with open(target_path, mode='w', newline='', encoding='utf-8') as f:
