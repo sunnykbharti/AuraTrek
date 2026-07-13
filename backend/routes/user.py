@@ -90,13 +90,13 @@ def book_trek(trek_id):
             return jsonify({"message": "No slots remaining on this trail!"}), 400
         
         # Check for pre-existing application 
-        existing_application = TrekApplications.query.filter_by(u_id=request.user_id, s_id=trek.t_id).first()
+        existing_application = TrekApplications.query.filter_by(u_id=request.user_id, t_id=trek.t_id).first()
         if existing_application:
             return jsonify({"message": "Already Applied for this route"}), 400
         
         # Creating new application in db
         new_application = TrekApplications(
-            s_id=trek.t_id,
+            t_id=trek.t_id,
             u_id=request.user_id,
             a_date=datetime.now(),
             a_status="applied"
@@ -108,8 +108,8 @@ def book_trek(trek_id):
         db.session.add(new_application)
         db.session.commit()
 
-        from routes.admin import get_treks_cached
-        cache.delete_memoized(get_treks_cached)
+        from routes.admin import get_treks
+        cache.delete_memoized(get_treks)
 
         return jsonify({"message": "Your slot is successfully booked"}), 201
     
@@ -123,7 +123,7 @@ def book_trek(trek_id):
 def get_my_bookings():
     try:
         applications = db.session.query(TrekApplications, Treks).\
-            join(Treks, TrekApplications.s_id == Treks.t_id).\
+            join(Treks, TrekApplications.t_id == Treks.t_id).\
             filter(TrekApplications.u_id == request.user_id).all()
         
         history_data = []
