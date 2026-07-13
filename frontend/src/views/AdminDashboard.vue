@@ -96,6 +96,7 @@
                 <div class="col-md-12">
                   <label class="form-label small fw-semibold">Assign Staff Guide</label>
                   <select class="form-select" v-model="trekForm.t_staff">
+                    <option value="unassigned">Assign Later</option>
                     <option v-for="staff in availableStaffOptions" :key="staff.u_id" :value="staff.u_id">
                       {{ staff.username }}
                     </option>
@@ -307,7 +308,7 @@ export default {
 
     const showTrekModal = ref(false)
     const editingTrekId = ref(null)
-    const trekForm = ref({ t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: 1, t_slots: 10, t_staff: null })
+    const trekForm = ref({ t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: 3, t_slots: 15, t_staff: 'Assign Later' })
 
     const showStaffForm = ref(false)
     const staffForm = ref({ email: '', password: '' , name: '', phone: '', age: null, city: ''})
@@ -437,7 +438,7 @@ export default {
         trekForm.value = { ...trek }
       } else {
         editingTrekId.value = null
-        trekForm.value = { t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: '', t_slots: '', t_staff: null }
+        trekForm.value = { t_name: '', t_location: '', t_difficulty: 'Easy', t_duration: '3', t_slots: '15', t_staff: 'unassigned' }
       }
       showTrekModal.value = true
     }

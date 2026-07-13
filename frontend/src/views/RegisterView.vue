@@ -2,8 +2,8 @@
   <div class="register-body min-vh-100 d-flex justify-content-center align-items-center">
     <div class="card shadow-sm p-4" style="width: 100%; max-width: 450px; border-radius: 16px; background-color: #F7F3E9; border: 1px solid #E6DEC9;">
       <div class="text-center mb-4">
-        <h2 class="fw-bold" style="color: tomato; letter-spacing: -0.5px;">AuraTrek</h2>
-        <p class="small" style="color: tomato;">Create your Trekker account to explore trails</p>
+        <h2 class="fw-bold" style="color:black; letter-spacing: -0.5px;">AuraTrek</h2>
+        <p class="small" style="color: black;">Create your Trekker account to explore trails</p>
       </div>
 
       <div v-if="errorMessage" class="alert alert-danger py-2 small" role="alert">
@@ -15,45 +15,48 @@
 
       <form @submit.prevent="handleRegister">
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">Name</label>
+          <label class="form-label small fw-semibold" style="color: black;">Name</label>
           <input type="text" class="form-control" v-model="name" placeholder="Rajesh Kumar" required>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">Email</label>
+          <label class="form-label small fw-semibold" style="color: black;">Email</label>
           <input type="email" class="form-control" v-model="email" placeholder="rajesh@example.com" required>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">Phone</label>
+          <label class="form-label small fw-semibold" style="color: black;">Phone</label>
           <input type="text" class="form-control" v-model="phone" placeholder="1234567890" required>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">City</label>
+          <label class="form-label small fw-semibold" style="color: black;">City</label>
           <input type="text" class="form-control" v-model="city" placeholder="Pune" required>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">Age</label>
+          <label class="form-label small fw-semibold" style="color: black;">Age</label>
           <input type="number" class="form-control" v-model="age" placeholder="20" required>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label small fw-semibold" style="color: tomato;">Password</label>
+          <label class="form-label small fw-semibold" style="color: black;">Password</label>
           <input type="password" class="form-control" v-model="password" placeholder="********" required>
         </div>
 
-        <button type="submit" class="btn w-100 fw-bold mt-2 text-white" :disabled="isLoading" style="background-color: #007bff; border: none;">
+        <button type="submit" class="btn w-100 fw-bold mt-2 text-white" :disabled="isLoading" style="background-color:chocolate; border: none;">
           <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
           Register Account
         </button>
       </form>
 
       <div class="text-center mt-4">
-        <p class="small" style="color: tomato;">Have an Account with us??? 
-          <router-link to="/" class="fw-semibold text-decoration-none" style="color: tomato;">Enter the chat</router-link>
-        </p>
+        <!-- <p class="small" style="color:black;">Have an Account with us??? 
+          <router-link to="/" class="fw-semibold text-decoration-none" style="color: black;">Enter the chat</router-link>
+        </p> -->
+        <a href="#">
+          <router-link to="/" class="fw-semibold text-decoration-none">Have an Account with us??? Enter the chat</router-link>
+        </a>
       </div>
     </div>
   </div>
@@ -127,6 +130,6 @@ export default {
 
 <style scoped>
 .register-body {
-  background-color: #f7f3e9;
+  background-color:darkorange;
 }
 </style>

@@ -24,8 +24,8 @@
           <input type="password" class="form-control" v-model="password" placeholder="**********" required>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 fw-bold mt-2" :disabled="isLoading">
-          <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+        <button type="submit" class="btn btn-primary w-100 fw-bold mt-2" style="background-color:darkgoldenrod; border: none;" :disabled="isLoading">
+          <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"  role="status"></span>
           Login
         </button>
       </form>
@@ -110,6 +110,6 @@ export default {
 
 <style scoped>
 .login-body {
-  background-color: aqua;
+  background-color:darkorange;
 }
 </style>
