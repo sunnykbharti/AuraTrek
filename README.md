@@ -93,7 +93,7 @@ source env/bin/activate
 celery -A app.celery_app beat --loglevel=info
 ```
 
-##📊 Database Schema Relationships
-The underlying application architecture handles data bindings using the following relationship constraints:
-Staff managers assign tracking metrics to individual entries inside the Treks metadata logs (Many-to-One).
-Registrations and status changes are captured dynamically through the unified mapping table TrekApplications.
+## 📊 Database Schema Relationships
+* The underlying application architecture handles data bindings using the following relationship constraints:
+* Staff managers assign tracking metrics to individual entries inside the Treks metadata logs (Many-to-One).
+* Registrations and status changes are captured dynamically through the unified mapping table TrekApplications.
