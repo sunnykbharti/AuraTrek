@@ -64,5 +64,36 @@ python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
 python3 app.py (mac)
+```
 
-### 2. Frontend API Configuration Setup
+### 2. Frontend 
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 3. Redis
+```bash
+cd backend
+brew services restart redis
+```
+
+### 4. Celery
+```bash
+cd backend
+source env/bin/activate
+celery -A app.celery_app worker --pool=solo --loglevel=info
+```
+
+### 5. Celery beat
+```bash
+cd backend
+source env/bin/activate
+celery -A app.celery_app beat --loglevel=info
+```
+
+##📊 Database Schema Relationships
+The underlying application architecture handles data bindings using the following relationship constraints:
+Staff managers assign tracking metrics to individual entries inside the Treks metadata logs (Many-to-One).
+Registrations and status changes are captured dynamically through the unified mapping table TrekApplications.
