@@ -309,22 +309,30 @@ export default {
     }
 
     const triggerBatchCSVExport = async () => {
-      error.value = ''
-      successMessage.value = ''
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/user/export-history',{
-          method: 'POST',
-          headers: getHeaders()
+    error.value = ''
+    successMessage.value = ''
+    
+    // Get user details from localStorage to send to the backend task pipeline
+    const userEmail = localStorage.getItem('email') || localStorage.getItem('username')
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/user/export-history', {
+            method: 'POST',
+            headers: {
+                ...getHeaders(),
+                'Content-Type': 'application/json' // Explicitly specify JSON content types mapping
+            },
+            body: JSON.stringify({ email: userEmail }) // ADDED: Passing payload body parameters safely
         })
+        
         const data = await response.json()
         if (!response.ok) throw new Error(data.message)
 
         successMessage.value = data.message
-      }
-      catch (err) {
+    } catch (err) {
         error.value = err.message || "Export failed"
-      }
-      }
+    }
+}
 
     onMounted(() => {
       const token = localStorage.getItem('token')
