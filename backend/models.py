@@ -15,7 +15,7 @@ class Users(flask_login.UserMixin, db.Model):
 class Staff(db.Model):
     s_id = db.Column(db.Integer, primary_key = True)
     s_name = db.Column(db.String(100), nullable = False)
-    s_phone = db.Column(db.Integer, unique = True, nullable = False)
+    s_phone = db.Column(db.Integer, nullable = False)
     s_email = db.Column(db.String(200), unique = True, nullable = False)
     s_age = db.Column(db.Integer, nullable = False)
     s_city = db.Column(db.String(200), nullable = False)
@@ -27,7 +27,7 @@ class Staff(db.Model):
 class Trekker(db.Model):
     u_id = db.Column(db.Integer, primary_key = True)
     u_name = db.Column(db.String(100), nullable = False)
-    u_phone = db.Column(db.Integer, unique = True, nullable = False)
+    u_phone = db.Column(db.Integer, nullable = False)
     u_email = db.Column(db.String(200), unique = True, nullable = False)
     u_age = db.Column(db.Integer, nullable = False)
     u_city = db.Column(db.String(200), nullable = False)
@@ -37,7 +37,7 @@ class Trekker(db.Model):
 #==================== Details of treks =============================================
 class Treks(db.Model):
     t_id = db.Column(db.Integer, primary_key = True)
-    t_name = db.Column(db.String(200), nullable = False, unique = True)
+    t_name = db.Column(db.String(200), nullable = False)
     t_location = db.Column(db.String(200), nullable = False)
     t_difficulty = db.Column(db.String(200), nullable = False)
     t_duration = db.Column(db.Integer, nullable = False)
