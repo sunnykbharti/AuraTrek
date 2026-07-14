@@ -140,17 +140,30 @@ def get_my_bookings():
         return jsonify({"message": f"Server processing error: {str(e)}"}), 500
 
 # User Triggered Async Job: Export Booking History as CSV
-@user_bp.route('/api/user/export-history', methods=['GET','POST'])
+@user_bp.route('/api/user/export-history', methods=['POST'])
 @user_required
 def trigger_history_export():
-    try : 
+    try:
         from tasks import export_booking_history_csv
+        from flask import g
 
-        # Triggers task cleanly through Celery context stack
-        export_booking_history_csv.delay(request.user_id, request.user_email)
+        # 1. Capture user credentials safely from the auth token context (g object)
+        # Apne auth decorator structure ke hisab se g.user_id / g.u_id matches check karein
+        target_user_id = request.user_id
+
+        # 2. Extract email from request body JSON payload or fall back to token storage
+        data = request.get_json() or {}
+        email_recipient = data.get('email')
+
+        if not email_recipient:
+            return jsonify({"message": "Recipient email identification mapping failed"}), 400
+
+        # 3. FIXED: Passing exactly two separate positional arguments to match the task definition
+        export_booking_history_csv.delay(target_user_id, email_recipient)
 
         return jsonify({
-            "message": "CSV Compilation Batch Job triggered successfully!"
+            "message": "CSV Compilation Batch Job triggered successfully! Check your inbox shortly."
         }), 202
+        
     except Exception as e:
         return jsonify({"message": f"Server processing error: {str(e)}"}), 500
