@@ -7,14 +7,17 @@ from mail import send_email
 from celery.schedules import crontab
 
 # Configure Celery Beat Periodic Clock Schedules
+celery_app.conf.timezone = 'Asia/Kolkata'
+celery_app.conf.enable_utc = False
+
 celery_app.conf.beat_schedule = {
     'send-daily-trekking-reminders': {
         'task': 'tasks.send_daily_reminders',
-        'schedule': crontab(hour=7, minute=0), # Fires daily at 7:00 AM local time
+        'schedule': crontab(hour=13, minute=25), # Fires daily at 7:00 AM local time
     },
     'send-monthly-activity-report': {
         'task': 'tasks.generate_monthly_admin_report',
-        'schedule': crontab(day_of_month=1, hour=0, minute=0), # Midnight on the first day of the month
+        'schedule': crontab(day_of_month=14, hour=13, minute=25), # Midnight on the first day of the month
     },
 }
 
@@ -28,9 +31,8 @@ def send_daily_reminders():
     # Logic Fixed: Added filter to match treks that specifically start tomorrow
     upcoming_bookings = db.session.query(TrekApplications, Users, Treks).\
         join(Users, TrekApplications.u_id == Users.u_id).\
-        join(Treks, TrekApplications.s_id == Treks.t_id).\
-        filter(TrekApplications.a_status == 'APPROVED').\
-        filter(Treks.t_start_date == tomorrow_str).all() # <--- Crucial Date Logic Filter Added
+        join(Treks, TrekApplications.t_id == Treks.t_id).\
+        filter(TrekApplications.a_status == 'applied')
 
     for app, user, trek in upcoming_bookings:
         html_content = f"""
@@ -61,11 +63,11 @@ def generate_monthly_admin_report():
 
     # Compute Core Performance Metrics
     total_treks = Treks.query.count()
-    total_participants = TrekApplications.query.filter_by(a_status='APPROVED').count()
+    total_participants = TrekApplications.query.filter_by(a_status='applied').count()
     
     # Query Fixed: Order By engine exception bypass handled natively
     popular_treks = db.session.query(Treks.t_name, db.func.count(TrekApplications.a_id).label('booking_count')).\
-        join(TrekApplications, Treks.t_id == TrekApplications.s_id).\
+        join(TrekApplications, Treks.t_id == TrekApplications.t_id).\
         group_by(Treks.t_name).\
         order_by(db.desc(db.func.count(TrekApplications.a_id))).limit(3).all()
 
@@ -99,13 +101,16 @@ def generate_monthly_admin_report():
         </body>
     </html>
     """
-    send_email(admin_user.username, "📊 AuraTrek: Monthly Management Performance Review", html_report)
+    send_email("admin.auratrek@gmail.com", "📊 AuraTrek: Monthly Management Performance Review", html_report)
     return "Monthly compilation metrics dispatch completed."
 
 
 # --- Job C: User Triggered Async CSV Export ---
 @celery_app.task
 def export_booking_history_csv(user_id, user_email):
+    if not user_id or user_id == "None":
+        print("🚨 CRITICAL ERROR: Celery task received invalid/empty user_id parameters sequence.")
+        return "Failed: Invalid Parameters"
     # Ensure export directory context exists locally
     os.makedirs('exports', exist_ok=True)
     target_path = f"exports/booking_history_{user_id}.csv"
