@@ -1,0 +1,252 @@
+openapi: 3.0.0
+info:
+  title: AuraTrek - Trekking & Expedition Management System
+  description: API documentation for the AuraTrek platform (Flask backend, JWT auth, Redis caching, Celery async jobs)
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+roles:
+  - admin
+  - staff
+  - trekker
+
+endpoints:
+
+  # ------------------- AUTHENTICATION -------------------
+  - path: /api/auth/login
+    method: [GET, POST]
+    blueprint: authentication
+    description: Authenticate a user with email and password and return a JWT token
+    auth_required: false
+    request_body:
+      email: string
+      password: string
+    responses:
+      200: { token: string, role: string, name: string, message: string }
+      401: Invalid email or password
+      403: Account inactive, pending admin approval
+
+  - path: /api/auth/register
+    method: [POST]
+    blueprint: authentication
+    description: Register a new trekker account
+    auth_required: false
+    request_body:
+      name: string
+      email: string
+      password: string
+      phone: string
+      city: string
+      age: integer
+    responses:
+      201: User registered successfully
+      400: Missing fields or user already exists
+      500: Database processing failure
+
+  # ------------------- ADMIN -------------------
+  - path: /api/admin/dashboard
+    method: [GET]
+    blueprint: admin
+    description: Fetch main dashboard stats (total trekkers, total staff)
+    auth_required: true
+    role: admin
+    responses:
+      200: Dashboard data with app_data object
+      500: Server error
+
+  - path: /api/admin/accounts
+    method: [GET]
+    blueprint: admin
+    description: Get all user accounts (excluding admins)
+    auth_required: true
+    role: admin
+    responses:
+      200: List of user accounts
+      500: Database error
+
+  - path: /api/admin/accounts/toggle/{user_id}
+    method: [POST]
+    blueprint: admin
+    description: Toggle a user's account status between active and inactive
+    auth_required: true
+    role: admin
+    path_params:
+      user_id: integer
+    responses:
+      200: Status updated
+      404: User not found
+      500: Server error
+
+  - path: /api/admin/treks
+    method: [GET]
+    blueprint: admin
+    description: Fetch all trek routes (cached in Redis, key "all_treks_data", timeout 300s)
+    auth_required: false
+    cache: true
+    responses:
+      200: List of all treks
+      500: Server error
+
+  - path: /api/admin/treks
+    method: [POST]
+    blueprint: admin
+    description: Create a new trek route (invalidates trek cache)
+    auth_required: true
+    role: admin
+    request_body:
+      t_name: string
+      t_location: string
+      t_difficulty: string
+      t_duration: integer
+      t_slots: integer
+    responses:
+      201: Trek created
+      500: Failed to create route
+
+  - path: /api/admin/treks/{trek_id}
+    method: [PUT, DELETE]
+    blueprint: admin
+    description: Update or delete a specific trek route (invalidates trek cache)
+    auth_required: true
+    role: admin
+    path_params:
+      trek_id: integer
+    responses:
+      200: Trek updated or deleted successfully
+      404: Trek route not found
+      500: Update/Deletion failed
+
+  - path: /api/admin/staff/register
+    method: [POST]
+    blueprint: admin
+    description: Directly register a new staff member account
+    auth_required: true
+    role: admin
+    request_body:
+      email: string
+      password: string
+      name: string
+      phone: string
+      age: integer
+      city: string
+    responses:
+      201: Staff account registered
+      400: Missing fields or email already exists
+      500: Registration failed
+
+  # ------------------- STAFF -------------------
+  - path: /api/staff/treks
+    method: [GET]
+    blueprint: staff_api
+    description: Fetch treks assigned to the logged-in staff member with dynamic participant counts
+    auth_required: true
+    role: staff
+    responses:
+      200: List of assigned treks
+      500: Server error
+
+  - path: /api/staff/treks/{trek_id}
+    method: [PUT]
+    blueprint: staff_api
+    description: Update slots and status of a trek assigned to the staff member (invalidates trek cache)
+    auth_required: true
+    role: staff
+    path_params:
+      trek_id: integer
+    request_body:
+      t_slots: integer
+      t_status: string
+    responses:
+      200: Trek updated successfully
+      404: Trek not found or unauthorized
+      500: Update failed
+
+  - path: /api/staff/treks/{trek_id}/participants
+    method: [GET]
+    blueprint: staff_api
+    description: View list of participants registered for a specific trek
+    auth_required: true
+    role: staff
+    path_params:
+      trek_id: integer
+    responses:
+      200: List of participants
+      404: Unauthorized or route non-existent
+      500: Server error
+
+  # ------------------- USER (TREKKER) -------------------
+  - path: /api/user/profile
+    method: [GET, PUT]
+    blueprint: user
+    description: Fetch or update the logged-in trekker's profile
+    auth_required: true
+    role: trekker
+    request_body:
+      name: string
+      phone: string
+      age: integer
+      city: string
+    responses:
+      200: Profile fetched or updated successfully
+      500: Profile update failed
+
+  - path: /api/user/book/{trek_id}
+    method: [POST]
+    blueprint: user
+    description: Book a slot on a trek for the logged-in trekker
+    auth_required: true
+    role: trekker
+    path_params:
+      trek_id: integer
+    responses:
+      201: Slot booked successfully
+      400: No slots remaining or already applied
+      404: Trek not found
+      500: Booking failed
+
+  - path: /api/user/bookings
+    method: [GET]
+    blueprint: user
+    description: Get the logged-in trekker's booking history
+    auth_required: true
+    role: trekker
+    responses:
+      200: List of booking history records
+      500: Server processing error
+
+  - path: /api/user/export-history
+    method: [POST]
+    blueprint: user
+    description: Trigger an async Celery job to export booking history as CSV and email it to the user
+    auth_required: true
+    role: trekker
+    async_job: export_booking_history_csv (Celery task)
+    request_body:
+      email: string
+    responses:
+      202: CSV export job triggered
+      400: Recipient email missing
+      500: Server processing error
+
+security_scheme:
+  type: JWT Bearer Token
+  header: Authorization
+  format: "Bearer <token>"
+  claims:
+    user.id: integer
+    role: string (admin | staff | trekker)
+    exp: expiry timestamp (1 day)
+
+caching:
+  backend: Redis (via flask-caching)
+  cached_endpoints:
+    - /api/admin/treks (GET)
+  invalidation_key: all_treks_data
+
+async_tasks:
+  backend: Celery + Redis broker
+  tasks:
+    - export_booking_history_csv
