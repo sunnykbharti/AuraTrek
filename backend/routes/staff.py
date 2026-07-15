@@ -32,6 +32,7 @@ def staff_required(f):
         return f(*args, **kwargs)
     return decorated
 
+
 # 1. Fetch assigned treks along with dynamic participant registration numbers
 @staff_bp.route('/api/staff/treks', methods=['GET'])
 @staff_required

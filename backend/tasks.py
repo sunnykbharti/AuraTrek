@@ -21,6 +21,7 @@ celery_app.conf.beat_schedule = {
     },
 }
 
+
 # --- Job A: Scheduled Daily Reminders ---
 @celery_app.task
 def send_daily_reminders():

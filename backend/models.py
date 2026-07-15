@@ -11,6 +11,7 @@ class Users(flask_login.UserMixin, db.Model):
     u_role = db.Column(db.String(100), nullable = False)
     u_status = db.Column(db.String(50), nullable = False, default = "active")
 
+
 #==================== Staff Profile details ===========================================
 class Staff(db.Model):
     s_id = db.Column(db.Integer, primary_key = True)

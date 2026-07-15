@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 # import app
 auth_bp = Blueprint("authentication", __name__)
 
+
 # app.config['SECRET_KEY'] = 'auratrek_secret_key_2026'
 
 @auth_bp.route('/api/auth/login', methods=['GET','POST'])

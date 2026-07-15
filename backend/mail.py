@@ -10,6 +10,7 @@ SMTP_PORT = 587  # Cleaned integer context matching ports
 SENDER_EMAIL = "admin.auratrek@gmail.com"
 SENDER_PASSWORD = "wgzt xsgu xhhs cnfu"
 
+
 def send_email(to_email, subject, body_html, attachment_path=None):
     try:
         msg = MIMEMultipart()

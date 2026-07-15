@@ -124,6 +124,7 @@ def create_trek():
         db.session.rollback()
         return jsonify({"message": f"Failed to create route: {str(e)}"}), 500
 
+
 # 5. Update & Delete Specific Trek Route (CRUD - Put & Delete)
 @admin_bp.route('/api/admin/treks/<int:trek_id>', methods=['PUT', 'DELETE'])
 @admin_required
