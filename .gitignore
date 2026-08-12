@@ -221,3 +221,5 @@ exports/
 celerybeat-schedule.db
 
 StaffDashboard2.vue
+
+seed.py

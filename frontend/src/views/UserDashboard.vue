@@ -81,7 +81,7 @@
                   <div class="d-flex justify-content-between align-items-center mb-3 text-secondary small">
                     <span>⏱️ <strong>{{ trek.t_duration }} Days</strong></span>
                   </div>
-                  <button @click="bookTrekSlot(trek.t_id)" class="btn btn-sm btn-primary w-100 fw-bold py-2" :disabled="trek.t_slots <= 0">
+                  <button @click="bookTrekSlot(trek.t_id)" class="btn btn-sm btn-primary w-100 fw-bold py-2" :disabled="trek.t_slots <= 0" style="background-color: #ee710a; border-color: #ee710a;">
                     {{ trek.t_slots <= 0 ? '🚫 Fully Booked' : '🎒 Book my Slot' }}
                   </button>
                 </div>
